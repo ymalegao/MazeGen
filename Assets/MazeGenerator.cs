@@ -17,7 +17,7 @@ public class MazeGenerator : MonoBehaviour
 
     
     
-    void Start()
+    public void Start()
     {
         mazeGrid = new MazeCell[mazeWidth, mazeHeight];
         for (int i = 0; i < mazeWidth; i++)
@@ -33,7 +33,7 @@ public class MazeGenerator : MonoBehaviour
   
     }
 
-    void GenerateMaze(){
+    public void GenerateMaze(){
         //start at random cell
         //mark cell as visited
         //push cell to stack
@@ -168,6 +168,18 @@ public class MazeGenerator : MonoBehaviour
         return e;
 
 
+    }
+
+
+    public void regenerateMaze(){
+        for (int i = 0; i < mazeWidth; i++)
+        {
+            for (int j = 0; j < mazeHeight; j++)
+            {
+                Destroy(mazeGrid[i, j].gameObject);
+            }
+        } 
+        Start();
     }
 
     // Update is called once per frame
