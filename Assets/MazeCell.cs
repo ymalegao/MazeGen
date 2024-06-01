@@ -12,11 +12,34 @@ public class MazeCell : MonoBehaviour
         
     [SerializeField] public GameObject Unvisitedblock;
 
+    [SerializeField] public GameObject startToken;
+
+    [SerializeField] public GameObject endToken;
+    public int g = 999;
+    public int f = 999;
+    public int h = 0;
+
+
     public bool IsVisited { get; set; }
+
+    public bool AgentVisited { get; set; }
+
+    public bool PathFindingVisited { get; set; }
+
 
     public void Visit(){
         IsVisited = true;
         Unvisitedblock.SetActive(false);
+    }
+
+    public void AgentVisit(){
+        AgentVisited = true;
+        // Unvisitedblock.SetActive(false);
+    }
+
+    public void PathFindingVisit(){
+        PathFindingVisited = true;
+        // Unvisitedblock.SetActive(false);
     }
 
     public void ClearLeftWall(){

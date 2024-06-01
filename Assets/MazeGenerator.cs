@@ -15,6 +15,14 @@ public class MazeGenerator : MonoBehaviour
 
     private MazeCell[,] mazeGrid;
 
+    public GameObject redpill;
+
+    public GameObject startToken;
+
+    public GameObject endToken;
+
+
+
     
     
     public void Start()
@@ -29,8 +37,26 @@ public class MazeGenerator : MonoBehaviour
         } 
 
         var first = mazeGrid[0, 0];
+        // Agent.transform.position = new Vector3(0, 1, 0);
+        int firstx = (int)first.transform.position.x;
+        int firstz = (int)first.transform.position.z;
+        redpill.transform.position = new Vector3(firstx, 1, firstz);
         GenerateMaze();
-  
+        Agent agentComponent = gameObject.AddComponent<Agent>();        
+        agentComponent.currentCell = mazeGrid[0, 0];
+        
+        agentComponent.mazeGrid = mazeGrid;
+        agentComponent.redpill = redpill;
+        agentComponent.mazeWidth = mazeWidth;
+        agentComponent.mazeHeight = mazeHeight;
+        // agentComponent.moveAgentUp(mazeGrid);
+        // StartCoroutine(agentComponent.SolveDFS());
+        int targetx = Random.Range(0, mazeWidth - 1);
+        int targetz = Random.Range(0, mazeHeight - 1);
+
+        Debug.Log(targetx);
+        Debug.Log(targetz);
+        StartCoroutine(agentComponent.agentAstart(0,0, targetx,targetz, startToken, endToken));
     }
 
     public void GenerateMaze(){
@@ -102,6 +128,7 @@ public class MazeGenerator : MonoBehaviour
         e = CheckActiveWalls(e);
         Debug.Log(e.Count);
 
+
        
     }
     
@@ -170,6 +197,8 @@ public class MazeGenerator : MonoBehaviour
 
     }
 
+    
+
 
     public void regenerateMaze(){
         for (int i = 0; i < mazeWidth; i++)
@@ -183,8 +212,9 @@ public class MazeGenerator : MonoBehaviour
     }
 
     // Update is called once per frame
+   
     void Update()
     {
-        
+
     }
 }
