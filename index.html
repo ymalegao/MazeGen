@@ -3,17 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
 
-    <header>
-        <h1>My first PHP page</h1>
-        <a href="Build1/index.html">Play Now</a>
-    </header>
+    <!-- CSS styling for web page-->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* background-color: #f4f4f4; */
+            background-color: #d3d3d3;
+        }
+        header {
+            text-align: center;
+            margin-top: 50px;
+        }
+        header h1 {
+            font-size: 2em;
+        }
+        header h2 {
+            font-size: 1em;
+        }
+        .description {
+            margin: 20px;
+            text-align: justify;
+        }
+        .images {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 20px;
+        }
+        .images img {
+            max-width: 300px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .play-button {
+            margin: 20px;
+        }
+        .play-button a {
+            background-color: #00FF00;
+            color: black;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+    </style>
 
+    </head>
+    <body>
+        
+        <header>
+            <h1>Maze Generator</h1>
+            <h2>By Yash Malegaonkar, Jaren Kawai, Rahamat Zaman, Chase Houske, Justin Park<h2>
+        </header>
 
-    
-</head>
-<body>
-    
+        <div class="description">
+            <p>This project employs procedural generation techniques to create intricate and unique mazes that challenge players with each playthrough. Similar to the classic game Pac-Man, players must navigate through maze-like levels to collect objects and avoid enemies. However, unlike Pac-Man, our project generates different mazes every time, providing a fresh and unpredictable experience. Our maze generator uses Unity due to its powerful functionalities and ease of use, even for developers with little prior experience. The game features randomized entrances and pathways, ensuring that no two mazes are ever the same. Players will need to explore unexplored areas and solve the maze, making it a test of both strategy and exploration. To ensure that the generated mazes are solvable and not just a collection of dead-ends, we utilize pathfinding algorithms such as Depth First Search (DFS). The project also includes interactive elements, allowing players to control an avatar from the maze's starting point or trace the path through the maze. This interaction is crucial for demonstrating the solvability and engaging nature of the mazes. Our project aligns with broader concepts discussed in our class, particularly the use of procedural generation to create varied content efficiently. This method allows us to generate a wide variety of mazes without the need to handcraft each one individually, thus saving time and resources while still providing a rich gameplay experience.</p>
+        </div>
+        
+        <!-- For adding images to the intro website, let's add images of our maze generator below -->
+        <!-- <div class="images">
+            <img src="maze1.png" alt="Maze Example 1">
+            <img src="maze2.png" alt="Maze Example 2">
+        </div> -->
+
+        <div class="play-button">
+            <a href="Build1/index.html">Play Now</a>
+        </div>
+    </body>
+
 </body>
 </html>
