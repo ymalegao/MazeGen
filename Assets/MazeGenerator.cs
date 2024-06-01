@@ -8,7 +8,7 @@ public class MazeGenerator : MonoBehaviour
     [SerializeField] private MazeCell mazeCellPrefab;
     [SerializeField] private int mazeWidth;
     [SerializeField] private int mazeHeight;
-
+    public GameObject myPlayer;
     private Stack <MazeCell> cellStack = new Stack<MazeCell>();
 
     private MazeCell lastCell;
@@ -25,11 +25,14 @@ public class MazeGenerator : MonoBehaviour
             for (int j = 0; j < mazeHeight; j++)
             {
                 mazeGrid[i, j] = Instantiate(mazeCellPrefab, new Vector3(i, 0, j), Quaternion.identity);
+                if((i == 0) && (j == 0)){
+                    mazeGrid[i, j].name = "first";
+                }
             }
         } 
-
         var first = mazeGrid[0, 0];
         GenerateMaze();
+        Instantiate(myPlayer);
   
     }
 
