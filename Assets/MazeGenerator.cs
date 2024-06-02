@@ -17,9 +17,17 @@ public class MazeGenerator : MonoBehaviour
 
     public GameObject redpill;
 
+    public GameObject bluepill;
+
     public GameObject startToken;
 
     public GameObject endToken;
+    public Agent agentComponent;  
+
+    Coroutine followPathCoroutine;
+  
+    
+
 
 
 
@@ -42,21 +50,48 @@ public class MazeGenerator : MonoBehaviour
         int firstz = (int)first.transform.position.z;
         redpill.transform.position = new Vector3(firstx, 1, firstz);
         GenerateMaze();
-        Agent agentComponent = gameObject.AddComponent<Agent>();        
+        agentComponent = gameObject.AddComponent<Agent>();        
         agentComponent.currentCell = mazeGrid[0, 0];
         
         agentComponent.mazeGrid = mazeGrid;
         agentComponent.redpill = redpill;
         agentComponent.mazeWidth = mazeWidth;
         agentComponent.mazeHeight = mazeHeight;
+        agentComponent.StartToken = startToken;
+        agentComponent.EndToken = endToken;
+        agentComponent.PlayerPill = bluepill;
         // agentComponent.moveAgentUp(mazeGrid);
         // StartCoroutine(agentComponent.SolveDFS());
         int targetx = Random.Range(0, mazeWidth - 1);
         int targetz = Random.Range(0, mazeHeight - 1);
+        bluepill.transform.position = new Vector3(targetx, 1, targetz);
 
         Debug.Log(targetx);
         Debug.Log(targetz);
-        StartCoroutine(agentComponent.agentAstart(0,0, targetx,targetz, startToken, endToken));
+        agentComponent.startAstar(firstx, firstz, targetx, targetz, startToken, endToken);
+        // StartCoroutine(agentComponent.agentAstart(0,0, targetx,targetz, startToken, endToken));
+
+    
+    }
+
+    void StartFollowPath(List<MazeCell> path)
+    {
+        if (followPathCoroutine != null)
+        {
+            StopCoroutine(followPathCoroutine);
+            followPathCoroutine = null;
+        }
+
+        followPathCoroutine = StartCoroutine(agentComponent.FollowPath(path));
+    }
+
+    void StopFollowPath()
+    {
+        if (followPathCoroutine != null)
+        {
+            StopCoroutine(followPathCoroutine);
+            followPathCoroutine = null;
+        }
     }
 
     public void GenerateMaze(){
@@ -211,10 +246,29 @@ public class MazeGenerator : MonoBehaviour
         Start();
     }
 
+    public void UpdateTargetPosition(int x, int z, Agent agentComponent)
+    {
+        
+        
+
+        if (agentComponent == null){
+            Debug.Log("Agent component is null");
+        }
+        int currentX = (int)redpill.transform.position.x;
+        int currentZ = (int)redpill.transform.position.z;
+        startToken.transform.position = new Vector3(currentX, 1, currentZ);
+        endToken.transform.position = new Vector3(x, 1, z);
+        StopAllCoroutines();
+        agentComponent.startAstar(currentX, currentZ, x, z, startToken, endToken);
+        Debug.Log("agent courotutine is running");
+    }
+
     // Update is called once per frame
    
     void Update()
     {
 
+
+       
     }
 }

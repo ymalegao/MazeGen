@@ -19,6 +19,7 @@ public class MazeCell : MonoBehaviour
     public int f = 999;
     public int h = 0;
 
+    public MazeCell parent;
 
     public bool IsVisited { get; set; }
 
@@ -57,10 +58,5 @@ public class MazeCell : MonoBehaviour
     public void ClearDownWall(){
         Downwall.SetActive(false);
     }
-
-
-
-
-
     
 }
