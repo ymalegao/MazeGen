@@ -41,7 +41,7 @@ public class Agent : MonoBehaviour
 
     public bool HasTopWall(int i, int j , MazeCell[,] mazeGrid){
         if (mazeGrid[i, j].Upwall.activeSelf){
-            Debug.Log("Up wall active");
+            // Debug.Log("Up wall active");
             return true;
         }
 
@@ -50,7 +50,7 @@ public class Agent : MonoBehaviour
 
     public bool HasBottomWall(int i, int j , MazeCell[,] mazeGrid){
         if (mazeGrid[i, j].Downwall.activeSelf){
-            Debug.Log("Down wall active");
+            // Debug.Log("Down wall active");
             return true;
         }
 
@@ -59,7 +59,7 @@ public class Agent : MonoBehaviour
 
     public bool HasLeftWall(int i, int j , MazeCell[,] mazeGrid){
         if (mazeGrid[i, j].Leftwall.activeSelf){
-            Debug.Log("Left wall active");
+            // Debug.Log("Left wall active");
             return true;
         }
 
@@ -68,7 +68,7 @@ public class Agent : MonoBehaviour
 
     public bool HasRightWall(int i, int j , MazeCell[,] mazeGrid){
         if (mazeGrid[i, j].Rightwall.activeSelf){
-            Debug.Log("Right wall active");
+            // Debug.Log("Right wall active");
             return true;
         }
 
@@ -197,7 +197,7 @@ public class Agent : MonoBehaviour
         var first = mazeGrid[0, 0];
         first.AgentVisit();
         AgentMoveTo(0, 0);
-        Debug.Log("Agent visited first cell");
+        // Debug.Log("Agent visited first cell");
         cellStack.Push(first);
         while (cellStack.Count > 0){
             var currentCell = cellStack.Pop();
@@ -211,33 +211,25 @@ public class Agent : MonoBehaviour
                 Debug.Log("Agent can move up");   
                 neighbors.Add(mazeGrid[x, z + 1]);
             }
-            else{
-                Debug.Log("Agent cannot move up");
-            }
+            
 
             if (z > 0 && canAgentMoveDirection("down", mazeGrid, redpill) && !mazeGrid[x, z - 1].AgentVisited){
-                Debug.Log("Agent can move down");
+                // Debug.Log("Agent can move down");
                 neighbors.Add(mazeGrid[x, z - 1]);
             }
-            else{
-                Debug.Log("Agent cannot move down");
-            }
+           
 
             if (x > 0 && canAgentMoveDirection("left", mazeGrid, redpill) && !mazeGrid[x - 1, z].AgentVisited){
                 Debug.Log("Agent can move left");
                 neighbors.Add(mazeGrid[x - 1, z]);
             } 
-            else{
-                Debug.Log("Agent cannot move left");
-            }
+            
 
             if (x < mazeWidth - 1 && canAgentMoveDirection("right", mazeGrid, redpill) && !mazeGrid[x + 1, z].AgentVisited){
                 Debug.Log("Agent can move right");
                 neighbors.Add(mazeGrid[x + 1, z]);
             }
-            else{
-                Debug.Log("Agent cannot move right");
-            }
+            
 
             for (int i = 0; i < neighbors.Count; i++){
                 Debug.Log("Neighbors: " + neighbors[i].transform.position);
@@ -319,14 +311,14 @@ public class Agent : MonoBehaviour
     }
 
     public void startAstar(int x1, int z1, int x2, int z2, GameObject startToken, GameObject endToken){
-        Debug.Log("current path size is " + pathStack.Count);
+        // Debug.Log("current path size is " + pathStack.Count);
         if (currentCoroutine != null){
             StopCoroutine(currentCoroutine);
             currentCoroutine = null;
         }
 
         ResetAgentState();
-        Debug.Log("reset path size is " + pathStack.Count);
+        // Debug.Log("reset path size is " + pathStack.Count);
 
         
         currentCoroutine = StartCoroutine(agentAstart(x1, z1, x2, z2, startToken, endToken));
@@ -391,7 +383,7 @@ public class Agent : MonoBehaviour
     }
 
     private void RetracePath(MazeCell startCell, MazeCell endCell){
-        Debug.Log("Retracing path");
+        // Debug.Log("Retracing path");
         var path = new List<MazeCell>();
         var currentCell = endCell;
         while (currentCell != startCell){
@@ -450,7 +442,7 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
         while (pathStack.Count > 0){
             var currentCell = pathStack.Pop();
             redpill.transform.position = currentCell;
-            Debug.Log("Path: " + currentCell);
+            // Debug.Log("Path: " + currentCell);
 
         }
     }
@@ -465,6 +457,7 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
             StartToken.transform.position = new Vector3(x1, 1, z1);
             EndToken.transform.position = new Vector3(playerx, 1, playerz+1);
             PlayerPill.transform.position = new Vector3(playerx, 1, playerz + 1);
+            mazeGrid[playerx, playerz].pellet.SetActive(false);
             StartCoroutine(agentAstart(x1, z1, playerx, playerz +1, StartToken, EndToken));
             yield return new WaitForSeconds(0.3f);
         }
@@ -486,6 +479,8 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
             EndToken.transform.position = new Vector3(playerx, 1, playerz - 1);
 
             PlayerPill.transform.position = new Vector3(playerx, 1, playerz - 1);
+            mazeGrid[playerx, playerz].pellet.SetActive(false);
+
             StartCoroutine(agentAstart(x1, z1, playerx, playerz - 1, StartToken, EndToken));
             yield return new WaitForSeconds(0.3f);
         }
@@ -506,6 +501,8 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
 
 
             PlayerPill.transform.position = new Vector3(playerx + 1, 1, playerz);
+            mazeGrid[playerx, playerz].pellet.SetActive(false);
+
             StartCoroutine(agentAstart(x1, z1, playerx + 1, playerz, StartToken, EndToken));
             yield return new WaitForSeconds(0.3f);
         }
@@ -526,6 +523,8 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
 
 
             PlayerPill.transform.position = new Vector3(playerx - 1, 1, playerz);
+            mazeGrid[playerx, playerz].pellet.SetActive(false);
+
             StartCoroutine(agentAstart(x1, z1, playerx - 1, playerz, StartToken, EndToken));
             yield return new WaitForSeconds(0.3f);
         }

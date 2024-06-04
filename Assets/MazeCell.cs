@@ -15,6 +15,10 @@ public class MazeCell : MonoBehaviour
     [SerializeField] public GameObject startToken;
 
     [SerializeField] public GameObject endToken;
+
+    [SerializeField] public GameObject pellet;
+
+
     public int g = 999;
     public int f = 999;
     public int h = 0;

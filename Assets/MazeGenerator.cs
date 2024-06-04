@@ -161,11 +161,11 @@ public class MazeGenerator : MonoBehaviour
         
         
         WallCells = CheckActiveWalls(WallCells);
-        Debug.Log("Wall cell count" + WallCells.Count);
-        Debug.Log("does it contain 0,0" + WallCells.Contains(mazeGrid[0, 0]));
-        Debug.Log("does it contain 10,0" + WallCells.Contains(mazeGrid[0, 0]));
+        // Debug.Log("Wall cell count" + WallCells.Count);
+        // Debug.Log("does it contain 0,0" + WallCells.Contains(mazeGrid[0, 0]));
+        // Debug.Log("does it contain 10,0" + WallCells.Contains(mazeGrid[0, 0]));
 
-        Debug.Log (" does it not contain 0,0" + !WallCells.Contains(mazeGrid[0, 0]));
+        // Debug.Log (" does it not contain 0,0" + !WallCells.Contains(mazeGrid[0, 0]));
        
         for (int i = 0; i < mazeHeight/2; i++)
         {
@@ -201,7 +201,7 @@ public class MazeGenerator : MonoBehaviour
     {
         for (int i = 0; i < mazeHeight - 1; i++) 
         {
-            Debug.Log("is edge cell of 2, 0 " + IsEdgeCell(2, 0));
+            // Debug.Log("is edge cell of 2, 0 " + IsEdgeCell(2, 0));
             if (!IsEdgeCell(x, i)) 
             {
                 if (x > 0 && !e.Contains(mazeGrid[x - 1, i])) mazeGrid[x - 1, i].ClearRightWall();
@@ -273,9 +273,7 @@ public class MazeGenerator : MonoBehaviour
         }
 
         if (z == 0){
-            if (x == 2){
-                Debug.Log("2,0 is an edge cell");
-            }
+            
             mazeGrid[x, z].ClearRightWall();
             mazeGrid[x, z].ClearLeftWall();
             mazeGrid[x, z].ClearUpWall();
@@ -401,7 +399,7 @@ public class MazeGenerator : MonoBehaviour
         endToken.transform.position = new Vector3(x, 1, z);
         StopAllCoroutines();
         agentComponent.startAstar(currentX, currentZ, x, z, startToken, endToken);
-        Debug.Log("agent courotutine is running");
+        // Debug.Log("agent courotutine is running");
     }
 
     // Update is called once per frame
