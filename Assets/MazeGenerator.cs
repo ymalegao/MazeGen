@@ -25,6 +25,11 @@ public class MazeGenerator : MonoBehaviour
     public Agent agentComponent;  
 
     Coroutine followPathCoroutine;
+
+    private List <MazeCell> WallCells = new List<MazeCell>();
+
+    int centralBoxWidth = 3;
+    int centralBoxHeight = 3;
   
     
 
@@ -42,14 +47,24 @@ public class MazeGenerator : MonoBehaviour
             {
                 mazeGrid[i, j] = Instantiate(mazeCellPrefab, new Vector3(i, 0, j), Quaternion.identity);
             }
-        } 
+        }
+        
+        CreateCentralBox();
+
+        
+
+
 
         var first = mazeGrid[0, 0];
+        first.Leftwall.SetActive(false);
         // Agent.transform.position = new Vector3(0, 1, 0);
         int firstx = (int)first.transform.position.x;
         int firstz = (int)first.transform.position.z;
         redpill.transform.position = new Vector3(firstx, 1, firstz);
         GenerateMaze();
+
+
+
         agentComponent = gameObject.AddComponent<Agent>();        
         agentComponent.currentCell = mazeGrid[0, 0];
         
@@ -73,26 +88,22 @@ public class MazeGenerator : MonoBehaviour
 
     
     }
-
-    void StartFollowPath(List<MazeCell> path)
+     void CreateCentralBox()
     {
-        if (followPathCoroutine != null)
-        {
-            StopCoroutine(followPathCoroutine);
-            followPathCoroutine = null;
-        }
+        int startX = (mazeWidth - centralBoxWidth) / 2;
+        int startZ = (mazeHeight - centralBoxHeight) / 2;
 
-        followPathCoroutine = StartCoroutine(agentComponent.FollowPath(path));
-    }
-
-    void StopFollowPath()
-    {
-        if (followPathCoroutine != null)
+        for (int i = startX; i < startX + centralBoxWidth; i++)
         {
-            StopCoroutine(followPathCoroutine);
-            followPathCoroutine = null;
+            for (int j = startZ; j < startZ + centralBoxHeight; j++)
+            {
+                mazeGrid[i, j].ClearAllWalls();
+            }
         }
     }
+
+    
+   
 
     public void GenerateMaze(){
         //start at random cell
@@ -102,7 +113,9 @@ public class MazeGenerator : MonoBehaviour
         // var first = mazeGrid[Random.Range(0, mazeWidth), Random.Range(0, mazeHeight)];
         var first = mazeGrid[0, 0];
         lastCell = first;
-        first.ClearLeftWall();
+        // first.Leftwall.SetActive(true);
+                
+
         first.Visit();
         cellStack.Push(first);
         while (cellStack.Count > 0) {
@@ -145,31 +158,151 @@ public class MazeGenerator : MonoBehaviour
         }
         Debug.Log("Maze Generated");
         Debug.Log(lastCell.transform.position.x);
-        if (lastCell.transform.position.x < mazeWidth - 1){
-            lastCell.ClearRightWall();
-        }
-        if (lastCell.transform.position.z < mazeHeight - 1){
-            lastCell.ClearDownWall();
-        }
+        
+        
+        WallCells = CheckActiveWalls(WallCells);
+        Debug.Log("Wall cell count" + WallCells.Count);
+        Debug.Log("does it contain 0,0" + WallCells.Contains(mazeGrid[0, 0]));
+        Debug.Log("does it contain 10,0" + WallCells.Contains(mazeGrid[0, 0]));
 
-        if (lastCell.transform.position.x > 0){
-            lastCell.ClearLeftWall();
-        }
-        if (lastCell.transform.position.z > 0){
-            lastCell.ClearUpWall();
-        }
-
-        List<MazeCell> e = new List<MazeCell>();
-        e = CheckActiveWalls(e);
-        Debug.Log(e.Count);
-
-
+        Debug.Log (" does it not contain 0,0" + !WallCells.Contains(mazeGrid[0, 0]));
        
+        for (int i = 0; i < mazeHeight/2; i++)
+        {
+            CreateOpenColumn(Random.Range(0, mazeWidth), 0, mazeHeight - 1, WallCells);
+            CreateOpenRow(0, Random.Range(0, mazeHeight), Random.Range(1, 3), WallCells);
+        }
+        ActivateEdgeWall();
+
+
     }
+
+    public void CreateOpenRow(int x, int y, int size, List<MazeCell> e)
+    {
+
+        for (int i = 0; i < mazeWidth - 1; i++) 
+        {
+            if (!IsEdgeCell(i, y)) 
+            {
+                if (i > 0 && !e.Contains(mazeGrid[i - 1, y])) mazeGrid[i - 1, y].ClearRightWall();
+                if (i < mazeWidth - 1 && !e.Contains(mazeGrid[i + 1, y])) mazeGrid[i + 1, y].ClearLeftWall();
+                if (y > 0 && !e.Contains(mazeGrid[i, y - 1])) mazeGrid[i, y - 1].ClearDownWall();
+                if (y < mazeHeight - 1 && !e.Contains(mazeGrid[i, y + 1])) mazeGrid[i, y + 1].ClearUpWall();
+            } else{
+                clearEdgeWall(i, y);
+            
+            
+            }
+        }
+    }
+
+
+    public void CreateOpenColumn(int x, int y, int size, List<MazeCell> e) 
+    {
+        for (int i = 0; i < mazeHeight - 1; i++) 
+        {
+            Debug.Log("is edge cell of 2, 0 " + IsEdgeCell(2, 0));
+            if (!IsEdgeCell(x, i)) 
+            {
+                if (x > 0 && !e.Contains(mazeGrid[x - 1, i])) mazeGrid[x - 1, i].ClearRightWall();
+                if (x < mazeWidth - 1 && !e.Contains(mazeGrid[x + 1, i])) mazeGrid[x + 1, i].ClearLeftWall();
+                if (i > 0 && !e.Contains(mazeGrid[x, i - 1])) mazeGrid[x, i - 1].ClearDownWall();
+                if (i < mazeHeight - 1 && !e.Contains(mazeGrid[x, i + 1])) mazeGrid[x, i + 1].ClearUpWall();
+            } else{
+                clearEdgeWall(x, i);
+            }
+        }
+
+
     
+    }
+
+    public void CreateOpenArea(int x, int y, int size) {
+    for (int i = x; i < x + size && i < mazeWidth; i++) {
+        for (int j = y; j < y + size && j < mazeHeight; j++) {
+            if (i > 0) mazeGrid[i - 1, j].ClearRightWall();
+            if (i < mazeWidth - 1) mazeGrid[i + 1, j].ClearLeftWall();
+            if (j > 0) mazeGrid[i, j - 1].ClearDownWall();
+            if (j < mazeHeight - 1) mazeGrid[i, j + 1].ClearUpWall();
+        }
+    }
+}
+    
+
+
+    private void ActivateEdgeWall(){
+        //this fuction will clear the walls of a cell that is on the edge of the maze without clearing the wall that is on the edge of the maze
+        //for example, if the cell is on the left side, the bottom can be clered, the top can be cleared, and the right can be clearaed, but the left wall cannot be cleared since it is on the edge of the maze
+        for (int x = 0; x < mazeWidth; x++)
+        {
+            for (int z = 0; z < mazeHeight; z++)
+            {
+                if (x == 0){
+                    mazeGrid[x, z].Leftwall.SetActive(true);
+                }
+                if (x == mazeWidth - 1){
+                    mazeGrid[x, z].Rightwall.SetActive(true);
+                }
+
+                if (z == 0){
+                    mazeGrid[x, z].Downwall.SetActive(true);
+                }
+
+                if (z == mazeHeight - 1){
+                    mazeGrid[x, z].Upwall.SetActive(true);
+                }
+            }
+        }
+        
+    }
+
+    private void clearEdgeWall(int x, int z){
+        //this fuction will clear the walls of a cell that is on the edge of the maze without clearing the wall that is on the edge of the maze
+        //for example, if the cell is on the left side, the bottom can be clered, the top can be cleared, and the right can be clearaed, but the left wall cannot be cleared since it is on the edge of the maze
+
+        if (x == 0){
+            mazeGrid[x, z].ClearRightWall();
+            mazeGrid[x, z].ClearUpWall();
+            mazeGrid[x, z].ClearDownWall();
+
+        }
+        if (x == mazeWidth - 1){
+            mazeGrid[x, z].ClearLeftWall();
+            mazeGrid[x, z].ClearUpWall();
+            mazeGrid[x, z].ClearDownWall();
+        }
+
+        if (z == 0){
+            if (x == 2){
+                Debug.Log("2,0 is an edge cell");
+            }
+            mazeGrid[x, z].ClearRightWall();
+            mazeGrid[x, z].ClearLeftWall();
+            mazeGrid[x, z].ClearUpWall();
+            mazeGrid[x, z].Downwall.SetActive(true);
+        }
+
+        if (z == mazeHeight - 1){
+            mazeGrid[x, z].ClearRightWall();
+            mazeGrid[x, z].ClearLeftWall();
+            mazeGrid[x, z].ClearDownWall();
+
+    }
+    }
 
     private void ClearWalls(MazeCell previous, MazeCell current){
         //if the current cell is to the left of the previous cell
+        int prevX = (int)previous.transform.position.x;
+        int prevZ = (int)previous.transform.position.z;
+        int currX = (int)current.transform.position.x;
+        int currZ = (int)current.transform.position.z;
+
+        // if (IsEdgeCell(prevX, prevZ) || IsEdgeCell(currX, currZ))
+        // {
+        //     clearEdgeWall(prevX, prevZ);
+        //     return;
+        // }
+        
         if (current.transform.position.x < previous.transform.position.x){
             current.ClearRightWall();
             previous.ClearLeftWall();
@@ -194,6 +327,13 @@ public class MazeGenerator : MonoBehaviour
             return;
         }
 
+    }
+
+    
+
+    private bool IsEdgeCell(int x, int z)
+    {
+        return x == 0 || z == 0 || x == mazeWidth - 1 || z == mazeHeight - 1;
     }
 
     public List<MazeCell> CheckActiveWalls(List<MazeCell> e){
@@ -231,6 +371,7 @@ public class MazeGenerator : MonoBehaviour
 
 
     }
+
 
     
 

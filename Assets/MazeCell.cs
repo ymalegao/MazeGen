@@ -58,5 +58,12 @@ public class MazeCell : MonoBehaviour
     public void ClearDownWall(){
         Downwall.SetActive(false);
     }
+
+    public void ClearAllWalls(){
+        ClearLeftWall();
+        ClearRightWall();
+        ClearUpWall();
+        ClearDownWall();
+    }
     
 }

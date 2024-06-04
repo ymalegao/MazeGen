@@ -29,6 +29,8 @@ public class Agent : MonoBehaviour
 
     int playerx;    
     int playerz;
+    private string currentDirection = "up"; // Default direction
+
 
 
     
@@ -105,27 +107,27 @@ public class Agent : MonoBehaviour
         int x = (int)pill.transform.position.x;
         int z = (int)pill.transform.position.z;
         if (direction == "up"){
-            if (!HasTopWall(x, z, mazeGrid)){
+            if (!HasTopWall(x, z, mazeGrid) && z < mazeHeight - 1 && !HasBottomWall(x, z + 1, mazeGrid)){
                 return true;
             }
             return false;
         }
         if (direction == "down"){
-            if (!HasBottomWall(x, z, mazeGrid)){
+            if (!HasBottomWall(x, z, mazeGrid) && z > 0 && !HasTopWall(x, z - 1, mazeGrid)){
                 return true;
             }
             return false;
 
         }
         if (direction == "left"){
-            if (!HasLeftWall(x, z, mazeGrid)){
+            if (!HasLeftWall(x, z, mazeGrid) && x > 0 && !HasRightWall(x - 1, z, mazeGrid)){
                 return true;
             }
             return false;
 
         }
         if (direction == "right"){
-            if (!HasRightWall(x, z, mazeGrid)){
+            if (!HasRightWall(x, z, mazeGrid) && x < mazeWidth - 1 && !HasLeftWall(x + 1, z, mazeGrid)){
                 return true;
             }
             return false;
@@ -332,6 +334,8 @@ public class Agent : MonoBehaviour
     public IEnumerator agentAstart(int x1, int z1, int x2, int z2, GameObject startToken, GameObject endToken ){
         // Debug.Log("Agent starting at: " + x1 + " " + z1);
         ResetAgentState();
+
+        
         
         
         startToken.transform.position = new Vector3(x1, 3, z1);
@@ -351,7 +355,7 @@ public class Agent : MonoBehaviour
         while (openList.Count > 0){
             var currentCell = openList[0];
             // AgentMoveTo((int)currentCell.transform.position.x, (int)currentCell.transform.position.z);
-            // yield return new WaitForSeconds(0.3f);
+            // yield return new WaitForSeconds(0.1f);
             foreach (var cell in openList){
                 if (cell.f < currentCell.f || cell.f == currentCell.f && cell.h < currentCell.h){
                     currentCell = cell;
@@ -404,7 +408,7 @@ public class Agent : MonoBehaviour
         }
         foreach (var cell in path){
             AgentMoveTo((int)cell.transform.position.x, (int)cell.transform.position.z);
-            yield return new WaitForSeconds(0.3f);
+            yield return new WaitForSeconds(0.6f);
         }
     }
 
@@ -414,19 +418,19 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
         int x = (int)currentCell.transform.position.x;
         int z = (int)currentCell.transform.position.z;
 
-        if (z < mazeHeight - 1 && !HasTopWall(x, z , mazeGrid) && !mazeGrid[x, z + 1].AgentVisited)
+        if (z < mazeHeight - 1 && !HasTopWall(x, z , mazeGrid) && !mazeGrid[x, z + 1].AgentVisited && !HasBottomWall(x, z + 1, mazeGrid))
         {
             neighbors.Add(mazeGrid[x, z + 1]);
         }
-        if (z > 0 && !HasBottomWall(x, z, mazeGrid) && !mazeGrid[x, z - 1].AgentVisited)
+        if (z > 0 && !HasBottomWall(x, z, mazeGrid) && !mazeGrid[x, z - 1].AgentVisited && !HasTopWall(x, z - 1, mazeGrid))
         {
             neighbors.Add(mazeGrid[x, z - 1]);
         }
-        if (x > 0 && !HasLeftWall(x, z, mazeGrid) && !mazeGrid[x - 1, z].AgentVisited)
+        if (x > 0 && !HasLeftWall(x, z, mazeGrid) && !mazeGrid[x - 1, z].AgentVisited && !HasRightWall(x - 1, z, mazeGrid))
         {
             neighbors.Add(mazeGrid[x - 1, z]);
         }
-        if (x < mazeWidth - 1 && !HasRightWall(x, z , mazeGrid) && !mazeGrid[x + 1, z].AgentVisited)
+        if (x < mazeWidth - 1 && !HasRightWall(x, z , mazeGrid) && !mazeGrid[x + 1, z].AgentVisited && !HasLeftWall(x + 1, z, mazeGrid))
         {
             neighbors.Add(mazeGrid[x + 1, z]);
         }
@@ -451,70 +455,110 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
         }
     }
 
-    void Update(){
-        if (Input.GetKeyDown(KeyCode.Space)){
-           
-            int x = (int)PlayerPill.transform.position.x;
-            int z = (int)PlayerPill.transform.position.z;
-            int x1 = (int)redpill.transform.position.x;
-            int z1 = (int)redpill.transform.position.z;
-            StartToken.transform.position = new Vector3(x1, 1, z1);
-            EndToken.transform.position = new Vector3(x, 1, z);
-            Debug.Log("start token" + StartToken.transform.position.x + " " + StartToken.transform.position.z); 
-            Debug.Log("end token" + EndToken.transform.position.x + " " + EndToken.transform.position.z);
-            StopAllCoroutines();
-            StartCoroutine(agentAstart(x1, z1, x, z, StartToken, EndToken));
-        }
-
-        if (Input.GetKeyDown(KeyCode.W) && canAgentMoveDirection("up", mazeGrid , PlayerPill)){
+    public IEnumerator moveplayerUp(){
+                
+        while (canAgentMoveDirection("up", mazeGrid , PlayerPill)){
             playerx = (int)PlayerPill.transform.position.x;
             playerz = (int)PlayerPill.transform.position.z;
-
-            PlayerPill.transform.position = new Vector3(playerx, 1, playerz + 1);
             int x1 = (int)redpill.transform.position.x;
             int z1 = (int)redpill.transform.position.z;
             StartToken.transform.position = new Vector3(x1, 1, z1);
             EndToken.transform.position = new Vector3(playerx, 1, playerz+1);
-            StopAllCoroutines();
+            PlayerPill.transform.position = new Vector3(playerx, 1, playerz + 1);
             StartCoroutine(agentAstart(x1, z1, playerx, playerz +1, StartToken, EndToken));
+            yield return new WaitForSeconds(0.3f);
         }
 
-        if (Input.GetKeyDown(KeyCode.S)  && canAgentMoveDirection("down", mazeGrid , PlayerPill)){
+        
+
+    } 
+
+    public IEnumerator moveplayerDown(){
+                
+        while (canAgentMoveDirection("down", mazeGrid , PlayerPill)){
             playerx = (int)PlayerPill.transform.position.x;
             playerz = (int)PlayerPill.transform.position.z;
 
-            PlayerPill.transform.position = new Vector3(playerx, 1, playerz - 1);
             
             int x1 = (int)redpill.transform.position.x;
             int z1 = (int)redpill.transform.position.z;
             StartToken.transform.position = new Vector3(x1, 1, z1);
             EndToken.transform.position = new Vector3(playerx, 1, playerz - 1);
-            StopAllCoroutines();
+
+            PlayerPill.transform.position = new Vector3(playerx, 1, playerz - 1);
             StartCoroutine(agentAstart(x1, z1, playerx, playerz - 1, StartToken, EndToken));
+            yield return new WaitForSeconds(0.3f);
         }
 
-        if (Input.GetKeyDown(KeyCode.A)  && canAgentMoveDirection("left", mazeGrid , PlayerPill)){
+        
+
+    } 
+
+    public IEnumerator moveplayerRight(){
+                
+        while (canAgentMoveDirection("right", mazeGrid , PlayerPill)){
             playerx = (int)PlayerPill.transform.position.x;
             playerz = (int)PlayerPill.transform.position.z;
-            PlayerPill.transform.position = new Vector3(playerx - 1, 1, playerz);
+            int x1 = (int)redpill.transform.position.x;
+            int z1 = (int)redpill.transform.position.z;
+            StartToken.transform.position = new Vector3(x1, 1, z1);
+            EndToken.transform.position = new Vector3(playerx + 1 , 1, playerz);
+
+
+            PlayerPill.transform.position = new Vector3(playerx + 1, 1, playerz);
+            StartCoroutine(agentAstart(x1, z1, playerx + 1, playerz, StartToken, EndToken));
+            yield return new WaitForSeconds(0.3f);
+        }
+
+        
+
+    } 
+
+    public IEnumerator moveplayerLeft(){
+                
+        while (canAgentMoveDirection("left", mazeGrid , PlayerPill)){
+            playerx = (int)PlayerPill.transform.position.x;
+            playerz = (int)PlayerPill.transform.position.z;
             int x1 = (int)redpill.transform.position.x;
             int z1 = (int)redpill.transform.position.z;
             StartToken.transform.position = new Vector3(x1, 1, z1);
             EndToken.transform.position = new Vector3(playerx - 1 , 1, playerz);
+
+
+            PlayerPill.transform.position = new Vector3(playerx - 1, 1, playerz);
+            StartCoroutine(agentAstart(x1, z1, playerx - 1, playerz, StartToken, EndToken));
+            yield return new WaitForSeconds(0.3f);
+        }
+
+        
+
+    } 
+
+    void Update()
+    {
+        
+
+        if (Input.GetKeyDown(KeyCode.W) && canAgentMoveDirection("up", mazeGrid , PlayerPill)){
             StopAllCoroutines();
-            StartCoroutine(agentAstart(x1, z1, playerx  - 1, playerz, StartToken, EndToken));
+            StartCoroutine(moveplayerUp());   
+        }
+
+        if (Input.GetKeyDown(KeyCode.S)  && canAgentMoveDirection("down", mazeGrid , PlayerPill)){
+           
+            StopAllCoroutines();
+            StartCoroutine(moveplayerDown());
+        }
+
+        if (Input.GetKeyDown(KeyCode.A)  && canAgentMoveDirection("left", mazeGrid , PlayerPill)){
+            
+            StopAllCoroutines();
+            StartCoroutine(moveplayerLeft());
         }
 
         if (Input.GetKeyDown(KeyCode.D) && canAgentMoveDirection("right", mazeGrid , PlayerPill)){
-            playerx = (int)PlayerPill.transform.position.x;
-            playerz = (int)PlayerPill.transform.position.z;
-            PlayerPill.transform.position = new Vector3(playerx + 1, 1, playerz);
-            int x1 = (int)redpill.transform.position.x;
-            int z1 = (int)redpill.transform.position.z;
-            StartToken.transform.position = new Vector3(x1, 1, z1);
-            EndToken.transform.position = new Vector3(playerx + 1, 1, playerz);
+        
             StopAllCoroutines();
-            StartCoroutine(agentAstart(x1, z1, playerx + 1, playerz, StartToken, EndToken));
+            StartCoroutine(moveplayerRight());
 
         }
 
