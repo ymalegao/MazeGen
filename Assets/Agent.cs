@@ -1,13 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using TMPro;
 public class Agent : MonoBehaviour
 {
     // Start is called before the first frame update
     public MazeCell currentCell;
     public MazeCell[,] mazeGrid;
     public GameObject redpill;
+    
+    public TextMeshProUGUI livesText;
 
     public int mazeWidth;
     public int mazeHeight;
@@ -30,9 +32,14 @@ public class Agent : MonoBehaviour
     int playerx;    
     int playerz;
     private string currentDirection = "up"; // Default direction
+    int playerLives = 3;
 
 
-
+    public void Start()
+    {
+        livesText.text = "Lives: " + playerLives;
+        
+    }
     
 
 
@@ -539,7 +546,8 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
 
         if (Input.GetKeyDown(KeyCode.W) && canAgentMoveDirection("up", mazeGrid , PlayerPill)){
             StopAllCoroutines();
-            StartCoroutine(moveplayerUp());   
+            StartCoroutine(moveplayerUp());
+
         }
 
         if (Input.GetKeyDown(KeyCode.S)  && canAgentMoveDirection("down", mazeGrid , PlayerPill)){
@@ -560,6 +568,20 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
             StartCoroutine(moveplayerRight());
 
         }
+
+        if (redpill.transform.position.x == PlayerPill.transform.position.x && redpill.transform.position.z == PlayerPill.transform.position.z){
+            Debug.Log("Agent collided with player");
+            playerLives -= 1;
+            livesText.text = "Lives: " + playerLives;
+
+            StopAllCoroutines();
+            redpill.transform.position = new Vector3(0, 1, 0);
+            if (playerLives == 0){
+                Debug.Log("Game over");
+                StopAllCoroutines();
+            }
+        }
+
 
 
     }

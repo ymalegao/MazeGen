@@ -25,21 +25,9 @@ public class CameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Vector3 forward = transform.TransformDirection(Vector3.forward);
-        Vector3 right = transform.TransformDirection(Vector3.right);
-
-        float curSpeedX = moveSpeed * Input.GetAxis("Vertical");
-        float curSpeedY = moveSpeed * Input.GetAxis("Horizontal");
-        float movementDirectionY = moveDirection.y;
-        moveDirection = (forward * curSpeedX) + (right * curSpeedY);
-
-        characterController.Move(moveDirection * Time.deltaTime);
-
         y = Input.GetAxis("Mouse X");
         x = Input.GetAxis("Mouse Y");
         rotate = new Vector3(x, y * sensitivity, 0);
         transform.eulerAngles = transform.eulerAngles - rotate;
-
-
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class MazeGenerator : MonoBehaviour
 {
@@ -13,9 +14,13 @@ public class MazeGenerator : MonoBehaviour
 
     private MazeCell lastCell;
 
+    public TextMeshProUGUI text;
+
     private MazeCell[,] mazeGrid;
 
     public GameObject redpill;
+
+    public GameObject otherPill;
 
     public GameObject bluepill;
 
@@ -24,12 +29,18 @@ public class MazeGenerator : MonoBehaviour
     public GameObject endToken;
     public Agent agentComponent;  
 
+    public Agent agenttwo;
+
     Coroutine followPathCoroutine;
 
     private List <MazeCell> WallCells = new List<MazeCell>();
 
     int centralBoxWidth = 3;
     int centralBoxHeight = 3;
+
+    public Material startMaterial;
+
+      
   
     
 
@@ -49,6 +60,13 @@ public class MazeGenerator : MonoBehaviour
             }
         }
         
+
+        float r = Random.Range(0f, 1f);
+        float g = Random.Range(0f, 1f);
+        float b = Random.Range(0f, 1f);
+
+        startMaterial.color = new Color(r, g, b); 
+        
         CreateCentralBox();
 
         
@@ -56,11 +74,15 @@ public class MazeGenerator : MonoBehaviour
 
 
         var first = mazeGrid[0, 0];
+        var second = mazeGrid[mazeWidth - 1, mazeHeight - 1];
         first.Leftwall.SetActive(false);
         // Agent.transform.position = new Vector3(0, 1, 0);
         int firstx = (int)first.transform.position.x;
         int firstz = (int)first.transform.position.z;
+        int secondx = (int)second.transform.position.x;
+        int secondz = (int)second.transform.position.z;
         redpill.transform.position = new Vector3(firstx, 1, firstz);
+
         GenerateMaze();
 
 
@@ -75,6 +97,19 @@ public class MazeGenerator : MonoBehaviour
         agentComponent.StartToken = startToken;
         agentComponent.EndToken = endToken;
         agentComponent.PlayerPill = bluepill;
+        agentComponent.livesText = text;
+
+        // agenttwo = gameObject.AddComponent<Agent>();        
+        // agenttwo.currentCell = mazeGrid[mazeWidth-1, mazeHeight-1];
+        // agenttwo.transform.position = new Vector3(mazeWidth-1, 1, mazeHeight-1);
+        
+        // agenttwo.mazeGrid = mazeGrid;
+        // agenttwo.redpill = otherPill;
+        // agenttwo.mazeWidth = mazeWidth;
+        // agenttwo.mazeHeight = mazeHeight;
+        // agenttwo.StartToken = startToken;
+        // agenttwo.EndToken = endToken;
+        // agenttwo.PlayerPill = bluepill;
         // agentComponent.moveAgentUp(mazeGrid);
         // StartCoroutine(agentComponent.SolveDFS());
         int targetx = Random.Range(0, mazeWidth - 1);
@@ -84,6 +119,7 @@ public class MazeGenerator : MonoBehaviour
         Debug.Log(targetx);
         Debug.Log(targetz);
         agentComponent.startAstar(firstx, firstz, targetx, targetz, startToken, endToken);
+        // agenttwo.startAstar(secondx, secondz, targetx, targetz, startToken, endToken);
         // StartCoroutine(agentComponent.agentAstart(0,0, targetx,targetz, startToken, endToken));
 
     
