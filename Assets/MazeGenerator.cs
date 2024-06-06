@@ -100,7 +100,7 @@ public class MazeGenerator : MonoBehaviour
             }
         }
        
-        Instantiate(myPlayer);
+        // Instantiate(myPlayer);
  
     }
 
