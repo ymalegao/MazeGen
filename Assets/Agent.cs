@@ -11,6 +11,10 @@ public class Agent : MonoBehaviour
     
     public TextMeshProUGUI livesText;
 
+    public TextMeshProUGUI scoreText;
+
+    public TextMeshProUGUI TotalScore;
+
     public int mazeWidth;
     public int mazeHeight;
 
@@ -25,20 +29,33 @@ public class Agent : MonoBehaviour
 
     private Coroutine currentCoroutine;
 
+    private Coroutine currentAstarCoroutine;
+
+    private Coroutine currentPlayerCoroutine;
+
     private List<MazeCell> neighborsBuffer = new List<MazeCell>();
 
     public GameObject PlayerPill;
+
+    private bool isFearMode = false;
 
     int playerx;    
     int playerz;
     private string currentDirection = "up"; // Default direction
     int playerLives = 3;
 
+    int playerScore = 0;
+
 
     public void Start()
     {
         livesText.text = "Lives: " + playerLives;
-        
+        currentPlayerCoroutine = StartCoroutine(moveplayerUp());
+        playerx = (int)PlayerPill.transform.position.x;
+        playerz = (int)PlayerPill.transform.position.z;
+        currentAstarCoroutine = StartCoroutine(agentAstart(0, 0, playerx, playerz + 1, StartToken, EndToken));
+
+
     }
     
 
@@ -257,12 +274,12 @@ public class Agent : MonoBehaviour
     }
 
 //BFS
-    public IEnumerator agentGoToFrom(int x1, int z1, int x2, int z2, GameObject startToken, GameObject endToken){
-        startToken.transform.position = new Vector3(x1, 3, z1);
-        endToken.transform.position = new Vector3(x2, 3, z2);
+    public IEnumerator agentGoToFrom(int x1, int z1, int x2, int z2, GameObject StartToken, GameObject EndToken){
+        StartToken.transform.position = new Vector3(x1, 3, z1);
+        EndToken.transform.position = new Vector3(x2, 3, z2);
 
-        startToken.SetActive(true);
-        endToken.SetActive(true);
+        StartToken.SetActive(true);
+        EndToken.SetActive(true);
         
         if (x1 < 0 || x1 >= mazeWidth || z1 < 0 || z1 >= mazeHeight || mazeGrid[x1, z1] == null || !mazeGrid[x1, z1].IsVisited){
             Debug.Log("Invalid starting point");
@@ -317,7 +334,7 @@ public class Agent : MonoBehaviour
         cellStack.Clear();
     }
 
-    public void startAstar(int x1, int z1, int x2, int z2, GameObject startToken, GameObject endToken){
+    public void startAstar(int x1, int z1, int x2, int z2, GameObject StartToken, GameObject EndToken){
         // Debug.Log("current path size is " + pathStack.Count);
         if (currentCoroutine != null){
             StopCoroutine(currentCoroutine);
@@ -328,19 +345,19 @@ public class Agent : MonoBehaviour
         // Debug.Log("reset path size is " + pathStack.Count);
 
         
-        currentCoroutine = StartCoroutine(agentAstart(x1, z1, x2, z2, startToken, endToken));
+        currentCoroutine = StartCoroutine(agentAstart(x1, z1, x2, z2, StartToken, EndToken));
     }
-    public IEnumerator agentAstart(int x1, int z1, int x2, int z2, GameObject startToken, GameObject endToken ){
+    public IEnumerator agentAstart(int x1, int z1, int x2, int z2, GameObject StartToken, GameObject EndToken ){
         // Debug.Log("Agent starting at: " + x1 + " " + z1);
         ResetAgentState();
 
         
         
         
-        startToken.transform.position = new Vector3(x1, 3, z1);
-        endToken.transform.position = new Vector3(x2, 3, z2);
-        startToken.SetActive(true);
-        endToken.SetActive(true);
+        StartToken.transform.position = new Vector3(x1, 3, z1);
+        EndToken.transform.position = new Vector3(x2, 3, z2);
+        StartToken.SetActive(true);
+        EndToken.SetActive(true);
         // Debug.Log("Agent starting at: " + x1 + " " + z1);
 
         var openList = new List<MazeCell>();
@@ -454,32 +471,37 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
         }
     }
 
-    public IEnumerator moveplayerUp(){
-                
-        while (canAgentMoveDirection("up", mazeGrid , PlayerPill)){
+   public IEnumerator moveplayerUp()
+    {
+        while (canAgentMoveDirection("up", mazeGrid, PlayerPill))
+        {
             playerx = (int)PlayerPill.transform.position.x;
             playerz = (int)PlayerPill.transform.position.z;
             int x1 = (int)redpill.transform.position.x;
             int z1 = (int)redpill.transform.position.z;
             StartToken.transform.position = new Vector3(x1, 1, z1);
-            EndToken.transform.position = new Vector3(playerx, 1, playerz+1);
+            EndToken.transform.position = new Vector3(playerx, 1, playerz + 1);
             PlayerPill.transform.position = new Vector3(playerx, 1, playerz + 1);
             mazeGrid[playerx, playerz].pellet.SetActive(false);
-            StartCoroutine(agentAstart(x1, z1, playerx, playerz +1, StartToken, EndToken));
+            playerScore += 2;
+
+            if (!isFearMode)
+            {
+                if (currentAstarCoroutine != null) StopCoroutine(currentAstarCoroutine);
+                currentAstarCoroutine = StartCoroutine(agentAstart(x1, z1, playerx, playerz + 1, StartToken, EndToken));
+            }
+
             yield return new WaitForSeconds(0.3f);
         }
+    }
 
-        
-
-    } 
-
-    public IEnumerator moveplayerDown(){
-                
-        while (canAgentMoveDirection("down", mazeGrid , PlayerPill)){
+    public IEnumerator moveplayerDown()
+    {
+        while (canAgentMoveDirection("down", mazeGrid, PlayerPill))
+        {
             playerx = (int)PlayerPill.transform.position.x;
             playerz = (int)PlayerPill.transform.position.z;
 
-            
             int x1 = (int)redpill.transform.position.x;
             int z1 = (int)redpill.transform.position.z;
             StartToken.transform.position = new Vector3(x1, 1, z1);
@@ -487,102 +509,226 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
 
             PlayerPill.transform.position = new Vector3(playerx, 1, playerz - 1);
             mazeGrid[playerx, playerz].pellet.SetActive(false);
+            playerScore += 2;
 
-            StartCoroutine(agentAstart(x1, z1, playerx, playerz - 1, StartToken, EndToken));
+            if (!isFearMode)
+            {
+                if (currentAstarCoroutine != null) StopCoroutine(currentAstarCoroutine);
+                currentAstarCoroutine = StartCoroutine(agentAstart(x1, z1, playerx, playerz - 1, StartToken, EndToken));
+            }
             yield return new WaitForSeconds(0.3f);
         }
+    }
 
-        
-
-    } 
-
-    public IEnumerator moveplayerRight(){
-                
-        while (canAgentMoveDirection("right", mazeGrid , PlayerPill)){
+    public IEnumerator moveplayerRight()
+    {
+        while (canAgentMoveDirection("right", mazeGrid, PlayerPill))
+        {
             playerx = (int)PlayerPill.transform.position.x;
             playerz = (int)PlayerPill.transform.position.z;
             int x1 = (int)redpill.transform.position.x;
             int z1 = (int)redpill.transform.position.z;
             StartToken.transform.position = new Vector3(x1, 1, z1);
-            EndToken.transform.position = new Vector3(playerx + 1 , 1, playerz);
-
+            EndToken.transform.position = new Vector3(playerx + 1, 1, playerz);
 
             PlayerPill.transform.position = new Vector3(playerx + 1, 1, playerz);
             mazeGrid[playerx, playerz].pellet.SetActive(false);
+            playerScore += 2;
+            if (!isFearMode)
+            {
+                if (currentAstarCoroutine != null) StopCoroutine(currentAstarCoroutine);
+                currentAstarCoroutine = StartCoroutine(agentAstart(x1, z1, playerx + 1, playerz, StartToken, EndToken));
+            }
 
-            StartCoroutine(agentAstart(x1, z1, playerx + 1, playerz, StartToken, EndToken));
             yield return new WaitForSeconds(0.3f);
         }
+    }
 
-        
-
-    } 
-
-    public IEnumerator moveplayerLeft(){
-                
-        while (canAgentMoveDirection("left", mazeGrid , PlayerPill)){
+    public IEnumerator moveplayerLeft()
+    {
+        while (canAgentMoveDirection("left", mazeGrid, PlayerPill))
+        {
             playerx = (int)PlayerPill.transform.position.x;
             playerz = (int)PlayerPill.transform.position.z;
             int x1 = (int)redpill.transform.position.x;
             int z1 = (int)redpill.transform.position.z;
             StartToken.transform.position = new Vector3(x1, 1, z1);
-            EndToken.transform.position = new Vector3(playerx - 1 , 1, playerz);
-
+            EndToken.transform.position = new Vector3(playerx - 1, 1, playerz);
 
             PlayerPill.transform.position = new Vector3(playerx - 1, 1, playerz);
             mazeGrid[playerx, playerz].pellet.SetActive(false);
+            playerScore += 2;
 
-            StartCoroutine(agentAstart(x1, z1, playerx - 1, playerz, StartToken, EndToken));
+            if (!isFearMode)
+            {
+                if (currentAstarCoroutine != null) StopCoroutine(currentAstarCoroutine);
+                currentAstarCoroutine = StartCoroutine(agentAstart(x1, z1, playerx - 1, playerz, StartToken, EndToken));
+            }
+            yield return new WaitForSeconds(0.3f);
+        }
+    }
+
+    public IEnumerator FearModeAgent()
+    {
+        // for 5 seconds, the agent will move randomly
+        float duration = 5f;
+        float startTime = Time.time;
+
+        while (Time.time - startTime < duration)
+        {
+            int randomDirection = Random.Range(0, 4);
+            if (randomDirection == 0 && canAgentMoveDirection("up", mazeGrid, redpill))
+            {
+                moveAgentUp(mazeGrid);
+            }
+            if (randomDirection == 1 && canAgentMoveDirection("down", mazeGrid, redpill))
+            {
+                moveAgentDown(mazeGrid);
+            }
+            if (randomDirection == 2 && canAgentMoveDirection("left", mazeGrid, redpill))
+            {
+                moveAgentLeft(mazeGrid);
+            }
+            if (randomDirection == 3 && canAgentMoveDirection("right", mazeGrid, redpill))
+            {
+                moveAgentRight(mazeGrid);
+            }
             yield return new WaitForSeconds(0.3f);
         }
 
-        
+        isFearMode = false;
+        // Resume following the player
+        int x1 = (int)redpill.transform.position.x;
+        int z1 = (int)redpill.transform.position.z;
+        int playerx = (int)PlayerPill.transform.position.x;
+        Debug.Log("Player x: " + playerx);
+        int playerz = (int)PlayerPill.transform.position.z;
+                Debug.Log("Player z: " + playerz);
 
-    } 
+
+        StartToken.transform.position = new Vector3(x1, 1, z1);
+        EndToken.transform.position = new Vector3(playerx, 1, playerz);
+        currentAstarCoroutine = StartCoroutine(agentAstart(x1, z1, playerx, playerz, StartToken, EndToken));
+    }
 
     void Update()
     {
+        if (playerLives > 0){
+
+
         
 
-        if (Input.GetKeyDown(KeyCode.W) && canAgentMoveDirection("up", mazeGrid , PlayerPill)){
-            StopAllCoroutines();
-            StartCoroutine(moveplayerUp());
-
-        }
-
-        if (Input.GetKeyDown(KeyCode.S)  && canAgentMoveDirection("down", mazeGrid , PlayerPill)){
-           
-            StopAllCoroutines();
-            StartCoroutine(moveplayerDown());
-        }
-
-        if (Input.GetKeyDown(KeyCode.A)  && canAgentMoveDirection("left", mazeGrid , PlayerPill)){
-            
-            StopAllCoroutines();
-            StartCoroutine(moveplayerLeft());
-        }
-
-        if (Input.GetKeyDown(KeyCode.D) && canAgentMoveDirection("right", mazeGrid , PlayerPill)){
-        
-            StopAllCoroutines();
-            StartCoroutine(moveplayerRight());
-
-        }
-
-        if (redpill.transform.position.x == PlayerPill.transform.position.x && redpill.transform.position.z == PlayerPill.transform.position.z){
-            Debug.Log("Agent collided with player");
-            playerLives -= 1;
-            livesText.text = "Lives: " + playerLives;
-
-            StopAllCoroutines();
-            redpill.transform.position = new Vector3(0, 1, 0);
-            if (playerLives == 0){
-                Debug.Log("Game over");
-                StopAllCoroutines();
+            if (mazeGrid[(int)PlayerPill.transform.position.x, (int)PlayerPill.transform.position.z].powerPellet.activeSelf)
+            {
+                mazeGrid[(int)PlayerPill.transform.position.x, (int)PlayerPill.transform.position.z].powerPellet.SetActive(false);
+                playerScore += 10;
+                if (currentAstarCoroutine != null)
+                {
+                    StopCoroutine(currentAstarCoroutine);
+                    currentAstarCoroutine = null;
+                }
+                isFearMode = true;
+                currentAstarCoroutine = StartCoroutine(FearModeAgent());
             }
+
+            if (Input.GetKeyDown(KeyCode.W) && canAgentMoveDirection("up", mazeGrid, PlayerPill))
+            {
+                if (currentPlayerCoroutine != null) StopCoroutine(currentPlayerCoroutine);
+                if (!isFearMode) StopAllCoroutines();
+
+                currentPlayerCoroutine = StartCoroutine(moveplayerUp());
+
+                if (!isFearMode && currentAstarCoroutine != null)
+                {
+                    StopCoroutine(currentAstarCoroutine);
+                    int x1 = (int)redpill.transform.position.x;
+                    int z1 = (int)redpill.transform.position.z;
+                    currentAstarCoroutine = StartCoroutine(agentAstart(x1, z1, playerx, playerz + 1, StartToken, EndToken));
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.S) && canAgentMoveDirection("down", mazeGrid, PlayerPill))
+            {
+                if (currentPlayerCoroutine != null) StopCoroutine(currentPlayerCoroutine);
+                if (!isFearMode) StopAllCoroutines();
+
+                currentPlayerCoroutine = StartCoroutine(moveplayerDown());
+                if (!isFearMode && currentAstarCoroutine != null)
+                {
+                    StopCoroutine(currentAstarCoroutine);
+                    int x1 = (int)redpill.transform.position.x;
+                    int z1 = (int)redpill.transform.position.z;
+                    currentAstarCoroutine = StartCoroutine(agentAstart(x1, z1, playerx, playerz - 1, StartToken, EndToken));
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.A) && canAgentMoveDirection("left", mazeGrid, PlayerPill))
+            {
+                if (currentPlayerCoroutine != null) StopCoroutine(currentPlayerCoroutine);
+                if (!isFearMode) StopAllCoroutines();
+
+                currentPlayerCoroutine = StartCoroutine(moveplayerLeft());
+
+                if (!isFearMode && currentAstarCoroutine != null)
+                {
+                    StopCoroutine(currentAstarCoroutine);
+                    int x1 = (int)redpill.transform.position.x;
+                    int z1 = (int)redpill.transform.position.z;
+                    currentAstarCoroutine = StartCoroutine(agentAstart(x1 -1 , z1, playerx, playerz , StartToken, EndToken));
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.D) && canAgentMoveDirection("right", mazeGrid, PlayerPill))
+            {
+                if (currentPlayerCoroutine != null) StopCoroutine(currentPlayerCoroutine);
+                            
+                if (!isFearMode) StopAllCoroutines();
+
+                
+
+                currentPlayerCoroutine = StartCoroutine(moveplayerRight());
+
+                if (!isFearMode && currentAstarCoroutine != null)
+                {
+                    StopCoroutine(currentAstarCoroutine);
+                    int x1 = (int)redpill.transform.position.x;
+                    int z1 = (int)redpill.transform.position.z;
+                    currentAstarCoroutine = StartCoroutine(agentAstart(x1 +1, z1, playerx, playerz , StartToken, EndToken));
+                }
+            }
+
+            scoreText.text = "Score: " + playerScore;
+
+            if (redpill.transform.position.x == PlayerPill.transform.position.x && redpill.transform.position.z == PlayerPill.transform.position.z)
+            {
+                Debug.Log("Agent collided with player");
+                playerLives -= 1;
+                livesText.text = "Lives: " + playerLives;
+
+
+                StopAllCoroutines();
+                redpill.transform.position = new Vector3(0, 1, 0);
+                if (playerLives == 0)
+                {
+                    Debug.Log("Game over");
+                    StopAllCoroutines();
+                }
+                else
+                {
+                    // Restart the agent following the player after losing a life
+                    int x1 = (int)redpill.transform.position.x;
+                    int z1 = (int)redpill.transform.position.z;
+                    int playerx = (int)PlayerPill.transform.position.x;
+                    int playerz = (int)PlayerPill.transform.position.z;
+
+                    StartToken.transform.position = new Vector3(x1, 1, z1);
+                    EndToken.transform.position = new Vector3(playerx, 1, playerz);
+                    currentAstarCoroutine = StartCoroutine(agentAstart(x1, z1, playerx, playerz, StartToken, EndToken));
+                }
+            }
+        }else{
+            TotalScore.text = "Total Score: " + playerScore;
+            TotalScore.fontSize = 50;
         }
-
-
-
     }
 }

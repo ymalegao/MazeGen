@@ -18,6 +18,8 @@ public class MazeCell : MonoBehaviour
 
     [SerializeField] public GameObject pellet;
 
+    [SerializeField] public GameObject powerPellet;
+
 
     public int g = 999;
     public int f = 999;
