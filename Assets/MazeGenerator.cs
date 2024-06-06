@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class MazeGenerator : MonoBehaviour
 {
@@ -13,9 +14,31 @@ public class MazeGenerator : MonoBehaviour
 
     private MazeCell lastCell;
 
+    public TextMeshProUGUI text;
+
     private MazeCell[,] mazeGrid;
 
-    
+    public GameObject redpill;
+
+    public GameObject otherPill;
+
+    public GameObject bluepill;
+
+    public GameObject startToken;
+
+    public GameObject endToken;
+    public Agent agentComponent;  
+
+    public Agent agenttwo;
+
+    Coroutine followPathCoroutine;
+
+    private List <MazeCell> WallCells = new List<MazeCell>();
+
+    int centralBoxWidth = 3;
+    int centralBoxHeight = 3;
+
+    public Material startMaterial;
     
     public void Start()
     {
@@ -29,11 +52,84 @@ public class MazeGenerator : MonoBehaviour
                     mazeGrid[i, j].name = "first";
                 }
             }
+        }
+        
+
+        float r = Random.Range(0f, 1f);
+        float g = Random.Range(0f, 1f);
+        float b = Random.Range(0f, 1f);
+
+        startMaterial.color = new Color(r, g, b); 
+        
+        CreateCentralBox();
+        
         } 
+        
         var first = mazeGrid[0, 0];
+        var second = mazeGrid[mazeWidth - 1, mazeHeight - 1];
+        first.Leftwall.SetActive(false);
+        // Agent.transform.position = new Vector3(0, 1, 0);
+        int firstx = (int)first.transform.position.x;
+        int firstz = (int)first.transform.position.z;
+        int secondx = (int)second.transform.position.x;
+        int secondz = (int)second.transform.position.z;
+        redpill.transform.position = new Vector3(firstx, 1, firstz);
+
         GenerateMaze();
+        
+        agentComponent = gameObject.AddComponent<Agent>();        
+        agentComponent.currentCell = mazeGrid[0, 0];
+        
+        agentComponent.mazeGrid = mazeGrid;
+        agentComponent.redpill = redpill;
+        agentComponent.mazeWidth = mazeWidth;
+        agentComponent.mazeHeight = mazeHeight;
+        agentComponent.StartToken = startToken;
+        agentComponent.EndToken = endToken;
+        agentComponent.PlayerPill = bluepill;
+        agentComponent.livesText = text;
+
+        // agenttwo = gameObject.AddComponent<Agent>();        
+        // agenttwo.currentCell = mazeGrid[mazeWidth-1, mazeHeight-1];
+        // agenttwo.transform.position = new Vector3(mazeWidth-1, 1, mazeHeight-1);
+        
+        // agenttwo.mazeGrid = mazeGrid;
+        // agenttwo.redpill = otherPill;
+        // agenttwo.mazeWidth = mazeWidth;
+        // agenttwo.mazeHeight = mazeHeight;
+        // agenttwo.StartToken = startToken;
+        // agenttwo.EndToken = endToken;
+        // agenttwo.PlayerPill = bluepill;
+        // agentComponent.moveAgentUp(mazeGrid);
+        // StartCoroutine(agentComponent.SolveDFS());
+        
+        int targetx = Random.Range(0, mazeWidth - 1);
+        int targetz = Random.Range(0, mazeHeight - 1);
+        bluepill.transform.position = new Vector3(targetx, 1, targetz);
+
+        Debug.Log(targetx);
+        Debug.Log(targetz);
+        agentComponent.startAstar(firstx, firstz, targetx, targetz, startToken, endToken);
+        
+        // agenttwo.startAstar(secondx, secondz, targetx, targetz, startToken, endToken);
+        // StartCoroutine(agentComponent.agentAstart(0,0, targetx,targetz, startToken, endToken));
+    
+    }
+     void CreateCentralBox()
+    {
+        int startX = (mazeWidth - centralBoxWidth) / 2;
+        int startZ = (mazeHeight - centralBoxHeight) / 2;
+
+        for (int i = startX; i < startX + centralBoxWidth; i++)
+        {
+            for (int j = startZ; j < startZ + centralBoxHeight; j++)
+            {
+                mazeGrid[i, j].ClearAllWalls();
+            }
+        }
+       
         Instantiate(myPlayer);
-  
+ 
     }
 
     public void GenerateMaze(){
@@ -44,7 +140,9 @@ public class MazeGenerator : MonoBehaviour
         // var first = mazeGrid[Random.Range(0, mazeWidth), Random.Range(0, mazeHeight)];
         var first = mazeGrid[0, 0];
         lastCell = first;
-        first.ClearLeftWall();
+        // first.Leftwall.SetActive(true);
+                
+
         first.Visit();
         cellStack.Push(first);
         while (cellStack.Count > 0) {
@@ -87,30 +185,149 @@ public class MazeGenerator : MonoBehaviour
         }
         Debug.Log("Maze Generated");
         Debug.Log(lastCell.transform.position.x);
-        if (lastCell.transform.position.x < mazeWidth - 1){
-            lastCell.ClearRightWall();
-        }
-        if (lastCell.transform.position.z < mazeHeight - 1){
-            lastCell.ClearDownWall();
-        }
+        
+        
+        WallCells = CheckActiveWalls(WallCells);
+        // Debug.Log("Wall cell count" + WallCells.Count);
+        // Debug.Log("does it contain 0,0" + WallCells.Contains(mazeGrid[0, 0]));
+        // Debug.Log("does it contain 10,0" + WallCells.Contains(mazeGrid[0, 0]));
 
-        if (lastCell.transform.position.x > 0){
-            lastCell.ClearLeftWall();
-        }
-        if (lastCell.transform.position.z > 0){
-            lastCell.ClearUpWall();
-        }
-
-        List<MazeCell> e = new List<MazeCell>();
-        e = CheckActiveWalls(e);
-        Debug.Log(e.Count);
-
+        // Debug.Log (" does it not contain 0,0" + !WallCells.Contains(mazeGrid[0, 0]));
        
+        for (int i = 0; i < mazeHeight/2; i++)
+        {
+            CreateOpenColumn(Random.Range(0, mazeWidth), 0, mazeHeight - 1, WallCells);
+            CreateOpenRow(0, Random.Range(0, mazeHeight), Random.Range(1, 3), WallCells);
+        }
+        ActivateEdgeWall();
+
+
     }
+
+    public void CreateOpenRow(int x, int y, int size, List<MazeCell> e)
+    {
+
+        for (int i = 0; i < mazeWidth - 1; i++) 
+        {
+            if (!IsEdgeCell(i, y)) 
+            {
+                if (i > 0 && !e.Contains(mazeGrid[i - 1, y])) mazeGrid[i - 1, y].ClearRightWall();
+                if (i < mazeWidth - 1 && !e.Contains(mazeGrid[i + 1, y])) mazeGrid[i + 1, y].ClearLeftWall();
+                if (y > 0 && !e.Contains(mazeGrid[i, y - 1])) mazeGrid[i, y - 1].ClearDownWall();
+                if (y < mazeHeight - 1 && !e.Contains(mazeGrid[i, y + 1])) mazeGrid[i, y + 1].ClearUpWall();
+            } else{
+                clearEdgeWall(i, y);
+            
+            
+            }
+        }
+    }
+
+
+    public void CreateOpenColumn(int x, int y, int size, List<MazeCell> e) 
+    {
+        for (int i = 0; i < mazeHeight - 1; i++) 
+        {
+            // Debug.Log("is edge cell of 2, 0 " + IsEdgeCell(2, 0));
+            if (!IsEdgeCell(x, i)) 
+            {
+                if (x > 0 && !e.Contains(mazeGrid[x - 1, i])) mazeGrid[x - 1, i].ClearRightWall();
+                if (x < mazeWidth - 1 && !e.Contains(mazeGrid[x + 1, i])) mazeGrid[x + 1, i].ClearLeftWall();
+                if (i > 0 && !e.Contains(mazeGrid[x, i - 1])) mazeGrid[x, i - 1].ClearDownWall();
+                if (i < mazeHeight - 1 && !e.Contains(mazeGrid[x, i + 1])) mazeGrid[x, i + 1].ClearUpWall();
+            } else{
+                clearEdgeWall(x, i);
+            }
+        }
+
+
     
+    }
+
+    public void CreateOpenArea(int x, int y, int size) {
+    for (int i = x; i < x + size && i < mazeWidth; i++) {
+        for (int j = y; j < y + size && j < mazeHeight; j++) {
+            if (i > 0) mazeGrid[i - 1, j].ClearRightWall();
+            if (i < mazeWidth - 1) mazeGrid[i + 1, j].ClearLeftWall();
+            if (j > 0) mazeGrid[i, j - 1].ClearDownWall();
+            if (j < mazeHeight - 1) mazeGrid[i, j + 1].ClearUpWall();
+        }
+    }
+}
+    
+
+
+    private void ActivateEdgeWall(){
+        //this fuction will clear the walls of a cell that is on the edge of the maze without clearing the wall that is on the edge of the maze
+        //for example, if the cell is on the left side, the bottom can be clered, the top can be cleared, and the right can be clearaed, but the left wall cannot be cleared since it is on the edge of the maze
+        for (int x = 0; x < mazeWidth; x++)
+        {
+            for (int z = 0; z < mazeHeight; z++)
+            {
+                if (x == 0){
+                    mazeGrid[x, z].Leftwall.SetActive(true);
+                }
+                if (x == mazeWidth - 1){
+                    mazeGrid[x, z].Rightwall.SetActive(true);
+                }
+
+                if (z == 0){
+                    mazeGrid[x, z].Downwall.SetActive(true);
+                }
+
+                if (z == mazeHeight - 1){
+                    mazeGrid[x, z].Upwall.SetActive(true);
+                }
+            }
+        }
+        
+    }
+
+    private void clearEdgeWall(int x, int z){
+        //this fuction will clear the walls of a cell that is on the edge of the maze without clearing the wall that is on the edge of the maze
+        //for example, if the cell is on the left side, the bottom can be clered, the top can be cleared, and the right can be clearaed, but the left wall cannot be cleared since it is on the edge of the maze
+
+        if (x == 0){
+            mazeGrid[x, z].ClearRightWall();
+            mazeGrid[x, z].ClearUpWall();
+            mazeGrid[x, z].ClearDownWall();
+
+        }
+        if (x == mazeWidth - 1){
+            mazeGrid[x, z].ClearLeftWall();
+            mazeGrid[x, z].ClearUpWall();
+            mazeGrid[x, z].ClearDownWall();
+        }
+
+        if (z == 0){
+            
+            mazeGrid[x, z].ClearRightWall();
+            mazeGrid[x, z].ClearLeftWall();
+            mazeGrid[x, z].ClearUpWall();
+            mazeGrid[x, z].Downwall.SetActive(true);
+        }
+
+        if (z == mazeHeight - 1){
+            mazeGrid[x, z].ClearRightWall();
+            mazeGrid[x, z].ClearLeftWall();
+            mazeGrid[x, z].ClearDownWall();
+
+    }
+    }
 
     private void ClearWalls(MazeCell previous, MazeCell current){
         //if the current cell is to the left of the previous cell
+        int prevX = (int)previous.transform.position.x;
+        int prevZ = (int)previous.transform.position.z;
+        int currX = (int)current.transform.position.x;
+        int currZ = (int)current.transform.position.z;
+
+        // if (IsEdgeCell(prevX, prevZ) || IsEdgeCell(currX, currZ))
+        // {
+        //     clearEdgeWall(prevX, prevZ);
+        //     return;
+        // }
+        
         if (current.transform.position.x < previous.transform.position.x){
             current.ClearRightWall();
             previous.ClearLeftWall();
@@ -135,6 +352,13 @@ public class MazeGenerator : MonoBehaviour
             return;
         }
 
+    }
+
+    
+
+    private bool IsEdgeCell(int x, int z)
+    {
+        return x == 0 || z == 0 || x == mazeWidth - 1 || z == mazeHeight - 1;
     }
 
     public List<MazeCell> CheckActiveWalls(List<MazeCell> e){
@@ -174,6 +398,9 @@ public class MazeGenerator : MonoBehaviour
     }
 
 
+    
+
+
     public void regenerateMaze(){
         for (int i = 0; i < mazeWidth; i++)
         {
@@ -185,9 +412,29 @@ public class MazeGenerator : MonoBehaviour
         Start();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void UpdateTargetPosition(int x, int z, Agent agentComponent)
     {
         
+        
+
+        if (agentComponent == null){
+            Debug.Log("Agent component is null");
+        }
+        int currentX = (int)redpill.transform.position.x;
+        int currentZ = (int)redpill.transform.position.z;
+        startToken.transform.position = new Vector3(currentX, 1, currentZ);
+        endToken.transform.position = new Vector3(x, 1, z);
+        StopAllCoroutines();
+        agentComponent.startAstar(currentX, currentZ, x, z, startToken, endToken);
+        // Debug.Log("agent courotutine is running");
+    }
+
+    // Update is called once per frame
+   
+    void Update()
+    {
+
+
+       
     }
 }
