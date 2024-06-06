@@ -99,6 +99,9 @@ public class MazeGenerator : MonoBehaviour
                 mazeGrid[i, j].ClearAllWalls();
             }
         }
+       
+        Instantiate(myPlayer);
+ 
     }
 
     public void GenerateMaze()
