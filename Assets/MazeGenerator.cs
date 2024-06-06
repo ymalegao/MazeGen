@@ -9,7 +9,7 @@ public class MazeGenerator : MonoBehaviour
     [SerializeField] private MazeCell mazeCellPrefab;
     [SerializeField] private int mazeWidth;
     [SerializeField] private int mazeHeight;
-
+    public GameObject myPlayer;
     private Stack <MazeCell> cellStack = new Stack<MazeCell>();
 
     private MazeCell lastCell;
@@ -39,15 +39,6 @@ public class MazeGenerator : MonoBehaviour
     int centralBoxHeight = 3;
 
     public Material startMaterial;
-
-      
-  
-    
-
-
-
-
-    
     
     public void Start()
     {
@@ -57,6 +48,9 @@ public class MazeGenerator : MonoBehaviour
             for (int j = 0; j < mazeHeight; j++)
             {
                 mazeGrid[i, j] = Instantiate(mazeCellPrefab, new Vector3(i, 0, j), Quaternion.identity);
+                if((i == 0) && (j == 0)){
+                    mazeGrid[i, j].name = "first";
+                }
             }
         }
         
@@ -68,11 +62,9 @@ public class MazeGenerator : MonoBehaviour
         startMaterial.color = new Color(r, g, b); 
         
         CreateCentralBox();
-
         
-
-
-
+        } 
+        
         var first = mazeGrid[0, 0];
         var second = mazeGrid[mazeWidth - 1, mazeHeight - 1];
         first.Leftwall.SetActive(false);
@@ -84,9 +76,7 @@ public class MazeGenerator : MonoBehaviour
         redpill.transform.position = new Vector3(firstx, 1, firstz);
 
         GenerateMaze();
-
-
-
+        
         agentComponent = gameObject.AddComponent<Agent>();        
         agentComponent.currentCell = mazeGrid[0, 0];
         
@@ -112,6 +102,7 @@ public class MazeGenerator : MonoBehaviour
         // agenttwo.PlayerPill = bluepill;
         // agentComponent.moveAgentUp(mazeGrid);
         // StartCoroutine(agentComponent.SolveDFS());
+        
         int targetx = Random.Range(0, mazeWidth - 1);
         int targetz = Random.Range(0, mazeHeight - 1);
         bluepill.transform.position = new Vector3(targetx, 1, targetz);
@@ -119,9 +110,9 @@ public class MazeGenerator : MonoBehaviour
         Debug.Log(targetx);
         Debug.Log(targetz);
         agentComponent.startAstar(firstx, firstz, targetx, targetz, startToken, endToken);
+        
         // agenttwo.startAstar(secondx, secondz, targetx, targetz, startToken, endToken);
         // StartCoroutine(agentComponent.agentAstart(0,0, targetx,targetz, startToken, endToken));
-
     
     }
      void CreateCentralBox()
@@ -136,10 +127,10 @@ public class MazeGenerator : MonoBehaviour
                 mazeGrid[i, j].ClearAllWalls();
             }
         }
+       
+        Instantiate(myPlayer);
+ 
     }
-
-    
-   
 
     public void GenerateMaze(){
         //start at random cell
