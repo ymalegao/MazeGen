@@ -62,8 +62,7 @@ public class MazeGenerator : MonoBehaviour
         startMaterial.color = new Color(r, g, b); 
         
         CreateCentralBox();
-        
-        } 
+         
         
         var first = mazeGrid[0, 0];
         var second = mazeGrid[mazeWidth - 1, mazeHeight - 1];
@@ -253,7 +252,7 @@ public class MazeGenerator : MonoBehaviour
             if (j < mazeHeight - 1) mazeGrid[i, j + 1].ClearUpWall();
         }
     }
-}
+    }
     
 
 
