@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class MazeGenerator : MonoBehaviour
 {
@@ -237,6 +238,7 @@ public class MazeGenerator : MonoBehaviour
 
     public void RestartGame()
     {
-       Start();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+
     }
 }

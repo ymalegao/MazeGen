@@ -278,8 +278,8 @@ public class Agent : MonoBehaviour
         StartToken.transform.position = new Vector3(x1, 3, z1);
         EndToken.transform.position = new Vector3(x2, 3, z2);
 
-        StartToken.SetActive(true);
-        EndToken.SetActive(true);
+        // StartToken.SetActive(true);
+        // EndToken.SetActive(true);
         
         if (x1 < 0 || x1 >= mazeWidth || z1 < 0 || z1 >= mazeHeight || mazeGrid[x1, z1] == null || !mazeGrid[x1, z1].IsVisited){
             Debug.Log("Invalid starting point");
@@ -356,8 +356,8 @@ public class Agent : MonoBehaviour
         
         StartToken.transform.position = new Vector3(x1, 3, z1);
         EndToken.transform.position = new Vector3(x2, 3, z2);
-        StartToken.SetActive(true);
-        EndToken.SetActive(true);
+        // StartToken.SetActive(true);
+        // EndToken.SetActive(true);
         // Debug.Log("Agent starting at: " + x1 + " " + z1);
 
         var openList = new List<MazeCell>();
