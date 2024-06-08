@@ -112,7 +112,10 @@ public class MazeGenerator : MonoBehaviour
         
         // agenttwo.startAstar(secondx, secondz, targetx, targetz, startToken, endToken);
         // StartCoroutine(agentComponent.agentAstart(0,0, targetx,targetz, startToken, endToken));
-    
+        Renderer rend1 = startToken.GetComponent<Renderer>();
+        rend1.enabled = false;
+        Renderer rend2 = endToken.GetComponent<Renderer>();
+        rend2.enabled = false;
     }
      void CreateCentralBox()
     {
@@ -127,7 +130,8 @@ public class MazeGenerator : MonoBehaviour
             }
         }
        
-        Instantiate(myPlayer);
+        GameObject thePlayer = Instantiate(myPlayer);
+        thePlayer.name = "Player";
  
     }
 
@@ -401,6 +405,7 @@ public class MazeGenerator : MonoBehaviour
 
 
     public void regenerateMaze(){
+        Destroy(GameObject.Find("Player"));
         for (int i = 0; i < mazeWidth; i++)
         {
             for (int j = 0; j < mazeHeight; j++)

@@ -577,6 +577,7 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
             StopAllCoroutines();
             redpill.transform.position = new Vector3(0, 1, 0);
             if (playerLives == 0){
+                livesText.text = "Lives: " + playerLives;
                 Debug.Log("Game over");
                 StopAllCoroutines();
             }
