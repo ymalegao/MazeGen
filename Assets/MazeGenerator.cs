@@ -58,13 +58,17 @@ public class MazeGenerator : MonoBehaviour
         float b = Random.Range(0f, 1f);
         startMaterial.color = new Color(r, g, b);
 
-        CreateCentralBox();
+        // CreateCentralBox();
         GenerateMaze();
 
         var first = mazeGrid[0, 0];
         int firstx = (int)first.transform.position.x;
         int firstz = (int)first.transform.position.z;
         redpill.transform.position = new Vector3(firstx, 1, firstz);
+        if (agentComponent != null)
+        {
+            Destroy(agentComponent);
+        }
 
         agentComponent = gameObject.AddComponent<Agent>();
         agentComponent.currentCell = mazeGrid[0, 0];
@@ -238,7 +242,29 @@ public class MazeGenerator : MonoBehaviour
 
     public void RestartGame()
     {
+        Agent existingAgent = gameObject.GetComponent<Agent>();
+
+
+        if (existingAgent != null)
+        {
+            Destroy(existingAgent);
+        }
+
+
+        for (int i = 0; i < mazeWidth; i++)
+        {
+            for (int j = 0; j < mazeHeight; j++)
+            {
+                mazeGrid[i, j].gameObject.SetActive(false);
+            }
+        }
+
+    // Clear the wall list
+        wallList.Clear();
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 
+
     }
+
+    
 }

@@ -50,6 +50,7 @@ public class Agent : MonoBehaviour
     public void Start()
     {
         livesText.text = "Lives: " + playerLives;
+        TotalScore.fontSize = 0;
         currentPlayerCoroutine = StartCoroutine(moveplayerUp());
         playerx = (int)PlayerPill.transform.position.x;
         playerz = (int)PlayerPill.transform.position.z;
@@ -57,6 +58,8 @@ public class Agent : MonoBehaviour
 
 
     }
+
+ 
     
 
 
@@ -728,6 +731,7 @@ private List<MazeCell> FindNeighbors(MazeCell currentCell)
             }
         }else{
             TotalScore.text = "Total Score: " + playerScore;
+
             TotalScore.fontSize = 50;
         }
     }
