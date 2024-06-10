@@ -24,11 +24,20 @@
         header h1 {
             font-size: 2em;
         }
-        header h2 {
+        header h2, h3 {
             font-size: 1em;
         }
         .description {
             margin: 20px;
+            text-align: justify;
+            font-weight: bold;
+
+            max-width: 800px;
+            width: 100%;
+            padding: 5px;
+        }
+        .indented {
+            margin-left: 25px; 
             text-align: justify;
         }
         .images {
@@ -38,7 +47,7 @@
             margin: 20px;
         }
         .images img {
-            max-width: 300px;
+            max-width: 700px;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
@@ -59,22 +68,50 @@
     <body>
         
         <header>
-            <h1>Maze Generator</h1>
+            <h1 class="header">Maze Generator</h1>
             <h2>By Yash Malegaonkar, Jaren Kawai, Rahamat Zaman, Chase Houske, Justin Park<h2>
         </header>
 
+        <h2> Project Overview</h2>            
         <div class="description">
-            <p>This project employs procedural generation techniques to create intricate and unique mazes that challenge players with each playthrough. Similar to the classic game Pac-Man, players must navigate through maze-like levels to collect objects and avoid enemies. However, unlike Pac-Man, our project generates different mazes every time, providing a fresh and unpredictable experience. Our maze generator uses Unity due to its powerful functionalities and ease of use, even for developers with little prior experience. The game features randomized entrances and pathways, ensuring that no two mazes are ever the same. Players will need to explore unexplored areas and solve the maze, making it a test of both strategy and exploration. To ensure that the generated mazes are solvable and not just a collection of dead-ends, we utilize pathfinding algorithms such as Depth First Search (DFS). The project also includes interactive elements, allowing players to control an avatar from the maze's starting point or trace the path through the maze. This interaction is crucial for demonstrating the solvability and engaging nature of the mazes. Our project aligns with broader concepts discussed in our class, particularly the use of procedural generation to create varied content efficiently. This method allows us to generate a wide variety of mazes without the need to handcraft each one individually, thus saving time and resources while still providing a rich gameplay experience.</p>
+            <p>Our project is a maze generator. Every time you run the project there is a unique maze that is generated, and the player always spawns in a starter position every time, the player being a cube. Using wasd the player can be moved, and using the arrow keys the camera can be moved. The player can move around the maze and can collect the pellets. You have to watch out for the AI that will hurt you if you touch them.</p>
+            <p>Each created maze creates paths that both the player and the enemy can take, and like Pac-Man, the paths are lined with pellets that contribute to an overall scoring system. To create new mazes, the generate button must be clicked and a layout will be constructed. The pellets and characters will be reset as well.            </p>
         </div>
+
+        <h2>Project Goals</h2>
+        <div class="description">
+            <p>The goal of our project is to have a playable example of generation mechanics that were taught throughout this class. We wanted our project to be able to have a player character with movement, that can collect some sort of treasure and escape from an enemy, all while traversing a procedurally generated maze. </p>
+        </div>
+
+        <h2> Game Mechanics and Features </h2>
+        <ul>
+            <li>Player (Blue) has 3 Lives</li>
+            <li>Press the generate button to generate new maze outline</li>
+            <ul>
+                <li class="indented">Able to generate at any given time</li>
+                <li class="indented">New maze color (walls)</li>
+                <li class="indented">Resets player position</li>
+            </ul>
+            <li>Can collect pellets spread all across the maze</li>
+            <ul>
+                <li class="indented">Game keeps track of pellets collected as score</li>
+                <li class="indented">If a power pellet is collected, the AI goes into “fear mode”</li>
+            </ul>
+            <li>AI agent (Red) moves around the maze</li>
+            <ul>
+                <li class="indented">If player touches agent, player loses a life</li>
+            </ul>
+            <li>Change camera angle by pressing 1, 2, or 3</li>
+        </ul>
         
-        <!-- For adding images to the intro website, let's add images of our maze generator below -->
-        <!-- <div class="images">
-            <img src="maze1.png" alt="Maze Example 1">
-            <img src="maze2.png" alt="Maze Example 2">
-        </div> -->
+        <h2>Maze Generator Image</h2>
+        <div class="images">
+            <img src="Assets/img/MazeGen-Image.png" alt="Maze Generator Image">
+        </div>
 
         <div class="play-button">
             <a href="Build2/index.html">Play Now</a>
+
             <!-- original code from main branch -->
             <!-- <a href="Build1/index.html">Play Now</a> -->
         </div>
