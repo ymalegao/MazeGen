@@ -133,8 +133,8 @@ GameObject:
   m_Component:
   - component: {fileID: 57171127}
   - component: {fileID: 57171126}
+  - component: {fileID: 57171128}
   - component: {fileID: 57171124}
-  - component: {fileID: 57171123}
   - component: {fileID: 57171122}
   m_Layer: 0
   m_Name: Camera2
@@ -169,21 +169,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &57171123
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 57171121}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c72dd00b35d8b43dabafe09dcfb1671f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  camera: {fileID: 57171121}
-  mazeWidth: 20
-  mazeHeight: 20
 --- !u!114 &57171124
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264,6 +249,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 70, y: 0, z: 0}
+--- !u!114 &57171128
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 57171121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fab828500eb44fbc93be184269e0a2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mazeWidth: 20
+  mazeHeight: 20
 --- !u!1 &86684248
 GameObject:
   m_ObjectHideFlags: 0
@@ -1030,9 +1029,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 929396161}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a553d31520e164174b4815c25ab8cb31, type: 3}
+  m_Script: {fileID: 11500000, guid: 830697b2bbe154660b550c834dfe2532, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Camera1: {fileID: 963194225}
+  Camera2: {fileID: 57171121}
+  Camera3: {fileID: 1171794286}
 --- !u!4 &929396163
 Transform:
   m_ObjectHideFlags: 0
@@ -1688,7 +1690,7 @@ GameObject:
   - component: {fileID: 1171794292}
   - component: {fileID: 1171794291}
   - component: {fileID: 1171794289}
-  - component: {fileID: 1171794288}
+  - component: {fileID: 1171794293}
   - component: {fileID: 1171794287}
   m_Layer: 0
   m_Name: Camera3
@@ -1723,21 +1725,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1171794288
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1171794286}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c72dd00b35d8b43dabafe09dcfb1671f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  camera: {fileID: 1171794286}
-  mazeWidth: 20
-  mazeHeight: 20
 --- !u!114 &1171794289
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1811,13 +1798,27 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1171794286}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.5735764, y: 0, z: 0, w: 0.8191521}
+  m_LocalRotation: {x: 0.23726209, y: 0, z: 0, w: 0.97144574}
   m_LocalPosition: {x: 4, y: 10, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 70, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 27.45, y: 0, z: 0}
+--- !u!114 &1171794293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1171794286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20b1535d71cb44fe4823e50678c9ab37, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mazeWidth: 20
+  mazeHeight: 20
 --- !u!1 &1594662071
 GameObject:
   m_ObjectHideFlags: 0
